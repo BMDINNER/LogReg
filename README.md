@@ -7,6 +7,5 @@ A flexible authentication client for Multiple Platform Central Authentication Ma
 - Multi-platform support - Works with various authentication providers
 - React ready - Built with React hooks for seamless integration
 - Lightweight - Minimal dependencies, only axios required
-- Type safe - Full TypeScript support (if using TypeScript)
 - Token management - Automatic token handling and refresh
 - Secure - Best practices for token storage and transmission
