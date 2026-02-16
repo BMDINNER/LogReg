@@ -72,6 +72,15 @@ class AuthAPI {
   }
 
 
+  async register(userData: RegisterData, endpoint: string): Promise<AuthResponse> {
+    try{
+      const { data  } = await this.api.post(endpoint, userData);
+      return data;
+    }catch(error){
+      throw this.handleError(error);
+    }
+  }
+
   async logout(endpoint: string): Promise<void> {
     try {
       const { data  } = await this.api.get(endpoint);
@@ -81,6 +90,15 @@ class AuthAPI {
     }
   }
 
+
+  async verifyToken(endpoint: string): Promise<any> {
+    try{
+      const { data  } = await this.api.get(endpoint);
+      return data;
+    } catch(error) {
+      throw this.handleError(error);
+    }
+  }
 
   async refreshToken(endpoint: string, refreshToken: string): Promise<{token: string}> {
     try{
