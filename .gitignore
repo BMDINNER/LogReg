@@ -1,17 +1,41 @@
+# .gitignore
+
 # Dependencies
 node_modules/
+.pnp/
+.pnp.js
+.yarn/install-state.gz
 
-# Build output
+# Build outputs
 dist/
+build/
+out/
 
-# Environment variables
+# Environment files
 .env
 .env.local
-
-# IDE
-.vscode/
-.idea/
-.DS_Store
+.env.development.local
+.env.test.local
+.env.production.local
 
 # Logs
+logs/
 *.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Editor directories
+.vscode/
+.idea/
+*.swp
+*.swo
+.DS_Store
+
+# Testing
+coverage/
+.nyc_output/
+
+# Misc
+.cache/
+.temp/
