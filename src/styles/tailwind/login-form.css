@@ -1,0 +1,80 @@
+@tailwind components;
+
+@layer components {
+  .login-form-container {
+    @apply space-y-4;
+  }
+
+  .login-form-field {
+    @apply mb-4;
+  }
+
+  .login-form-label {
+    @apply block mb-1 text-sm font-medium text-gray-700;
+  }
+
+  .login-form-required {
+    @apply text-red-500 ml-1;
+  }
+
+  .login-form-input-wrapper {
+    @apply relative;
+  }
+
+  .login-form-input-icon {
+    @apply absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 text-sm;
+  }
+
+  .login-form-input {
+    @apply w-full px-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500;
+  }
+
+  .login-form-input-with-icon {
+    @apply pl-10;
+  }
+
+  .login-form-input-error {
+    @apply border-red-500 bg-red-50;
+  }
+
+  .login-form-error-message {
+    @apply text-red-500 text-sm mt-1 block;
+  }
+
+  .login-form-error-icon {
+    @apply mr-1;
+  }
+
+  .login-form-global-error {
+    @apply bg-red-100 text-red-700 px-4 py-3 rounded-md text-sm;
+  }
+
+  .login-form-global-error-icon {
+    @apply mr-2;
+  }
+
+  .login-form-submit {
+    @apply w-full py-2 px-4 rounded-md text-white font-medium
+           transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2;
+  }
+
+  .login-form-submit-enabled {
+    @apply bg-blue-600 hover:bg-blue-700 focus:ring-blue-500;
+  }
+
+  .login-form-submit-disabled {
+    @apply bg-gray-500 cursor-not-allowed;
+  }
+
+  .login-form-submit-content {
+    @apply flex items-center justify-center;
+  }
+
+  .login-form-submit-icon {
+    @apply mr-2;
+  }
+
+  .login-form-spinner {
+    @apply mr-2;
+  }
+}

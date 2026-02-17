@@ -44,6 +44,7 @@
     "forceConsistentCasingInFileNames": true
   },
 
-  "include": ["src/**/*"],
+  "include": ["src/**/*",
+              "src/**/*.css"],
   "exclude": ["node_modules", "dist"]
 }
