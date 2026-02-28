@@ -5,6 +5,7 @@
   "main": "dist/index.js",
   "module": "dist/index.esm.js",
   "type": "module",
+  "files": ["dist"],
   "types": "dist/index.d.ts",
   "scripts": {
     "build": "rollup -c",
