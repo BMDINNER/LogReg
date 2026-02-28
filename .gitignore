@@ -38,3 +38,11 @@ coverage/
 # Misc
 .cache/
 .temp/
+
+#Package tarballs
+*.tgz
+*.tar.gz
+
+#Temporary files
+*.tmp
+*.temp

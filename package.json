@@ -1,11 +1,13 @@
 {
-  "name": "logreg",
+  "name": "@bmdinner/logreg",
   "version": "1.0.0",
   "description": "Authentication client for Multi Platform Authentication Service Project",
   "main": "dist/index.js",
   "module": "dist/index.esm.js",
   "type": "module",
-  "files": ["dist"],
+  "files": [
+    "dist"
+  ],
   "types": "dist/index.d.ts",
   "scripts": {
     "build": "rollup -c",
@@ -15,7 +17,6 @@
   "author": "Berke Dinner",
   "license": "MIT",
   "dependencies": {
-    "@fortawesome/fontawesome-free": "^7.2.0",
     "axios": "^1.13.5"
   },
   "devDependencies": {
