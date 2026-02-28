@@ -1,6 +1,6 @@
 {
   "name": "@bmdinner/logreg",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Authentication client for Multi Platform Authentication Service Project",
   "main": "dist/index.js",
   "module": "dist/index.esm.js",
