@@ -1,6 +1,6 @@
 import React from 'react';
-import { useAuthForm } from '../hooks/useAuthForm.ts';
-import { isRequired, isValidEmail } from '../utils/validation.ts';
+import { useAuthForm } from '../hooks/useAuthForm';
+import { isRequired, isValidEmail } from '../utils/validation';
 import type { AuthFormProps, Field } from '../types';
 
 export const LoginForm: React.FC<AuthFormProps> = ({
@@ -13,7 +13,9 @@ export const LoginForm: React.FC<AuthFormProps> = ({
   submitButtonText = 'Log In',
   renderField,
   onSuccess,
-  onError
+  onError,
+  projectId,
+  className = ''
 }) => {
   const rules = {
     email: [
@@ -22,7 +24,7 @@ export const LoginForm: React.FC<AuthFormProps> = ({
     ],
     password: [
       { validate: isRequired, message: 'Password is required' },
-      { validate: (v: string) => v?.length >= 6, message: 'Password too short' }
+      { validate: (v: string) => v?.length >= 6, message: 'Password must be at least 6 characters' }
     ],
     ...validationRules
   };
@@ -39,7 +41,8 @@ export const LoginForm: React.FC<AuthFormProps> = ({
     validationRules: rules,
     onSubmit: async (data) => {
       try {
-        const result = await onSubmit?.(data);
+        const submitData = projectId ? { ...data, projectId } : data;
+        const result = await onSubmit?.(submitData);
         onSuccess?.(result);
       } catch (err: any) {
         onError?.(err);
@@ -49,23 +52,25 @@ export const LoginForm: React.FC<AuthFormProps> = ({
 
   const defaultField = (field: Field) => {
     return (
-      <div key={field.name}>
-        <label>
+      <div key={field.name} className="auth-form-field">
+        <label htmlFor={field.name}>
           {field.label}
-          {field.required && <span>*</span>}
+          {field.required && <span className="required">*</span>}
         </label>
-        <div>
+        <div className="input-wrapper">
           <input
+            id={field.name}
             name={field.name}
             type={field.type || 'text'}
             value={values[field.name] || ''}
             onChange={handleChange}
             onBlur={handleBlur}
             placeholder={field.placeholder}
+            className={errors[field.name] ? 'error' : ''}
           />
         </div>
         {errors[field.name] && (
-          <small>
+          <small className="error-message">
             {errors[field.name]}
           </small>
         )}
@@ -74,16 +79,16 @@ export const LoginForm: React.FC<AuthFormProps> = ({
   };
 
   return (
-    <form onSubmit={handleSubmit}>
+    <form onSubmit={handleSubmit} className={`auth-form ${className}`}>
       {fields.map(field => renderField ? renderField(field, { values, errors, handleChange, handleBlur }) : defaultField(field))}
       
       {errors.form && (
-        <div>
+        <div className="form-error">
           {errors.form}
         </div>
       )}
       
-      <button type="submit" disabled={loading}>
+      <button type="submit" disabled={loading} className="auth-submit-btn">
         {loading ? 'Please wait...' : submitButtonText}
       </button>
     </form>

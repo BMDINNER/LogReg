@@ -1,18 +1,29 @@
 import axios from 'axios';
-import type { AxiosInstance, AxiosError } from 'axios';
+import type { AxiosInstance, AxiosError, InternalAxiosRequestConfig } from 'axios';
 import type { LoginCredentials, RegisterData, AuthResponse } from '../types';
+
+interface ExtendedAxiosRequestConfig extends InternalAxiosRequestConfig {
+  _retry?: boolean;
+}
 
 class AuthAPI {
   private api: AxiosInstance;
   private refreshEndpoint: string;
+  private apiKey: string;
+  private projectId: string;
 
-  constructor(baseURL: string, refreshEndpoint: string = '/auth/refresh') {
+  constructor(baseURL: string, apiKey: string, projectId: string, refreshEndpoint: string = '/auth/refresh') {
     this.refreshEndpoint = refreshEndpoint;
-    
+    this.apiKey = apiKey;
+    this.projectId = projectId;
+
     this.api = axios.create({
       baseURL: baseURL,
       timeout: 10000,
-      headers: { "Content-Type": 'application/json' }
+      headers: { 
+        'Content-Type': 'application/json',
+        'x-api-key': this.apiKey
+      }
     });
 
     this.api.interceptors.request.use((config) => {
@@ -20,13 +31,16 @@ class AuthAPI {
       if (token) {
         config.headers.Authorization = `Bearer ${token}`;
       }
+      if (this.projectId) {
+        config.headers['x-project-id'] = this.projectId;
+      }
       return config;
     });
 
     this.api.interceptors.response.use(
       (response) => response,
       async (error: AxiosError) => {
-        const originalRequest: any = error.config;
+        const originalRequest = error.config as ExtendedAxiosRequestConfig;
         if (error.response?.status === 401 && !originalRequest._retry) {
           originalRequest._retry = true;
           try {
@@ -34,7 +48,9 @@ class AuthAPI {
             const response = await this.api.post(this.refreshEndpoint, { refreshToken });
             const { token } = response.data;
             localStorage.setItem('token', token);
-            originalRequest.headers.Authorization = `Bearer ${token}`;
+            if (originalRequest.headers) {
+              originalRequest.headers.Authorization = `Bearer ${token}`;
+            }
             return this.api(originalRequest);
           } catch (refreshError) {
             localStorage.removeItem('token');
@@ -63,7 +79,10 @@ class AuthAPI {
 
   async login(credentials: LoginCredentials, endpoint: string): Promise<AuthResponse> {
     try {
-      const { data } = await this.api.post(endpoint, credentials);
+      const { data } = await this.api.post(endpoint, {
+        ...credentials,
+        projectId: this.projectId
+      });
       return data;
     } catch (error) {
       throw this.handleError(error);
@@ -72,7 +91,10 @@ class AuthAPI {
 
   async register(userData: RegisterData, endpoint: string): Promise<AuthResponse> {
     try {
-      const { data } = await this.api.post(endpoint, userData);
+      const { data } = await this.api.post(endpoint, {
+        ...userData,
+        projectId: this.projectId
+      });
       return data;
     } catch (error) {
       throw this.handleError(error);
@@ -81,7 +103,8 @@ class AuthAPI {
 
   async logout(endpoint: string): Promise<void> {
     try {
-      const { data } = await this.api.get(endpoint);
+      const refreshToken = localStorage.getItem('refreshToken');
+      const { data } = await this.api.post(endpoint, { refreshToken });
       return data;
     } catch (error) {
       throw this.handleError(error);
