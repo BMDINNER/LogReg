@@ -12,6 +12,7 @@ export {
 } from './utils/validation.ts';
 export type {
   User,
+  ProjectInfo,
   AuthResponse,
   LoginCredentials,
   RegisterData,

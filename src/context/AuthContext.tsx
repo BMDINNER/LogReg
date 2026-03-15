@@ -1,12 +1,14 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import AuthAPI from '../services/api.ts';
-import type { User, AuthResponse, LoginCredentials, RegisterData, AuthContextType, AuthProviderProps } from '../types';
+import type { User, AuthResponse, LoginCredentials, RegisterData, AuthContextType, AuthProviderProps, ProjectInfo } from '../types';
 
 export const AuthContext = createContext<AuthContextType | null>(null);
 
 export const AuthProvider: React.FC<AuthProviderProps> = ({ 
   children, 
   baseURL,
+  apiKey,
+  projectId,
   loginEndpoint = '/auth/login',
   registerEndpoint = '/auth/register',
   verifyEndpoint = '/auth/verify',
@@ -15,10 +17,11 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({
   onError
 }) => {
   const [user, setUser] = useState<User | null>(null);
+  const [project, setProject] = useState<ProjectInfo | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   
-  const api = new AuthAPI(baseURL, refreshEndpoint);
+  const api = new AuthAPI(baseURL, apiKey, projectId, refreshEndpoint);
 
   useEffect(() => {
     checkAuth();
@@ -34,9 +37,15 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({
 
       const userData = await api.verifyToken(verifyEndpoint);
       setUser(userData);
+      
+      const storedProject = localStorage.getItem('project');
+      if (storedProject) {
+        setProject(JSON.parse(storedProject));
+      }
     } catch (err: any) {
       localStorage.removeItem('token');
       localStorage.removeItem('refreshToken');
+      localStorage.removeItem('project');
       onError?.(err);
     } finally {
       setLoading(false);
@@ -54,6 +63,10 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({
         localStorage.setItem('token', response.token);
         if (response.refreshToken) {
           localStorage.setItem('refreshToken', response.refreshToken);
+        }
+        if (response.project) {
+          localStorage.setItem('project', JSON.stringify(response.project));
+          setProject(response.project);
         }
         setUser(response.user);
       }
@@ -79,6 +92,10 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({
         if (response.refreshToken) {
           localStorage.setItem('refreshToken', response.refreshToken);
         }
+        if (response.project) {
+          localStorage.setItem('project', JSON.stringify(response.project));
+          setProject(response.project);
+        }
         setUser(response.user);
       }
       
@@ -101,7 +118,9 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({
     } finally {
       localStorage.removeItem('token');
       localStorage.removeItem('refreshToken');
+      localStorage.removeItem('project');
       setUser(null);
+      setProject(null);
       setLoading(false);
     }
   };
@@ -109,6 +128,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({
   return (
     <AuthContext.Provider value={{
       user,
+      project,
       loading,
       error,
       login,

@@ -1,3 +1,5 @@
+import React from 'react';
+
 export interface User {
   id: string;
   email: string;
@@ -8,21 +10,30 @@ export interface User {
   updatedAt: string;
 }
 
+export interface ProjectInfo {
+  id: string;
+  name: string;
+  role: string;
+}
+
 export interface AuthResponse {
   token: string;
   refreshToken: string;
   user: User;
+  project?: ProjectInfo;
 }
 
 export interface LoginCredentials {
   email: string;
   password: string;
+  projectId?: string;
 }
 
 export interface RegisterData {
   username: string;
   email: string;
   password: string;
+  projectId?: string;
 }
 
 export interface Field {
@@ -49,12 +60,14 @@ export interface AuthFormProps {
   submitButtonText?: string;
   className?: string;
   renderField?: (field: Field, formState: any) => React.ReactNode;
-  onSuccess?: (result: any) => void;
+  onSuccess?: (result: AuthResponse) => void;
   onError?: (error: Error) => void;
+  projectId?: string;
 }
 
 export interface AuthContextType {
   user: User | null;
+  project: ProjectInfo | null;
   loading: boolean;
   error: string | null;
   login: (credentials: LoginCredentials) => Promise<AuthResponse>;
@@ -66,6 +79,8 @@ export interface AuthContextType {
 export interface AuthProviderProps {
   children: React.ReactNode;
   baseURL: string;
+  apiKey: string;
+  projectId: string;
   loginEndpoint?: string;
   registerEndpoint?: string;
   verifyEndpoint?: string;
