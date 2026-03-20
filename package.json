@@ -1,50 +1,54 @@
 {
   "name": "@bmdinner/logreg",
-  "version": "1.0.2", 
-  "description": "Authentication client for Multi Platform Authentication Service Project",
-  "main": "dist/index.js",
-  "module": "dist/index.esm.js",
+  "version": "1.0.3",
   "type": "module",
+  "description": "Authentication client for Multi Platform Authentication Service Project",
+  "main": "dist/index.cjs.js",
+  "module": "dist/index.esm.js",
+  "types": "dist/index.d.ts",
   "files": [
     "dist"
   ],
-  "types": "dist/index.d.ts",
   "scripts": {
     "build": "rollup -c",
     "prepare": "npm run build",
-    "clean": "rimraf dist",
-    "rebuild": "npm run clean && npm run build"
+    "dev": "rollup -c -w",
+    "clean": "rm -rf dist"
   },
-  "keywords": [],
+  "keywords": ["authentication", "react", "login", "register", "oauth"],
   "author": "Berke Dinner",
   "license": "MIT",
+  "peerDependencies": {
+    "react": ">=16.8.0",
+    "react-dom": ">=16.8.0"
+  },
+  "peerDependenciesMeta": {
+    "react": {
+      "optional": false
+    },
+    "react-dom": {
+      "optional": false
+    }
+  },
   "dependencies": {
-    "axios": "^1.13.5"
+    "axios": "^1.6.2"
   },
   "devDependencies": {
-    "@babel/core": "^7.29.0",
-    "@babel/preset-env": "^7.29.0",
-    "@babel/preset-react": "^7.28.5",
-    "@babel/preset-typescript": "^7.28.5",
-    "@rollup/plugin-babel": "^6.1.0",
-    "@rollup/plugin-commonjs": "^25.0.8",
-    "@rollup/plugin-json": "^6.1.0",
-    "@rollup/plugin-node-resolve": "^15.3.1",
-    "@rollup/plugin-terser": "^0.1.0",
-    "@rollup/plugin-typescript": "^11.1.6",
-    "@types/node": "^20.19.30",
-    "@types/react": "^18.3.18",
-    "@types/react-dom": "^18.3.5",
-    "react": "^18.3.1 || ^19.0.0",
-    "react-dom": "^18.3.1 || ^19.0.0",
-    "rimraf": "^5.0.5",
-    "rollup": "^4.57.1",
+    "@babel/core": "^7.23.0",
+    "@babel/preset-env": "^7.23.0",
+    "@babel/preset-react": "^7.22.0",
+    "@babel/preset-typescript": "^7.23.0",
+    "@rollup/plugin-babel": "^6.0.4",
+    "@rollup/plugin-commonjs": "^25.0.7",
+    "@rollup/plugin-node-resolve": "^15.2.3",
+    "@rollup/plugin-terser": "^0.4.4",
+    "@rollup/plugin-typescript": "^11.1.5",
+    "@types/react": "^18.2.0",
+    "@types/react-dom": "^18.2.0",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "rollup": "^4.9.0",
     "rollup-plugin-peer-deps-external": "^2.2.4",
-    "tslib": "^2.8.1",
-    "typescript": "^5.9.3"
-  },
-  "peerDependencies": {
-    "react": "^18.3.1 || ^19.0.0",
-    "react-dom": "^18.3.1 || ^19.0.0"
+    "typescript": "^5.3.0"
   }
 }

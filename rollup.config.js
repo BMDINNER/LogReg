@@ -3,14 +3,13 @@ import resolve from '@rollup/plugin-node-resolve';
 import commonjs from '@rollup/plugin-commonjs';
 import typescript from '@rollup/plugin-typescript';
 import terser from '@rollup/plugin-terser';
-import json from '@rollup/plugin-json';
 import peerDepsExternal from 'rollup-plugin-peer-deps-external';
 
 export default {
   input: 'src/index.ts',
   output: [
     {
-      file: 'dist/index.js',
+      file: 'dist/index.cjs.js',
       format: 'cjs',
       sourcemap: true,
       exports: 'named'
@@ -24,10 +23,8 @@ export default {
   ],
   plugins: [
     peerDepsExternal(),
-    json(),
     resolve({
       browser: true,
-      preferBuiltins: false,
       extensions: ['.js', '.jsx', '.ts', '.tsx']
     }),
     commonjs({
@@ -38,8 +35,7 @@ export default {
       tsconfig: './tsconfig.json',
       declaration: true,
       declarationDir: 'dist',
-      rootDir: 'src',
-      emitDeclarationOnly: true
+      rootDir: 'src'
     }),
     babel({
       babelHelpers: 'bundled',
@@ -47,10 +43,12 @@ export default {
       exclude: 'node_modules/**',
       presets: [
         ['@babel/preset-env', { 
-          targets: '> 0.25%, not dead',
-          modules: false 
+          targets: { 
+            browsers: ['>0.25%', 'not dead', 'not op_mini all']
+          },
+          modules: false
         }],
-        '@babel/preset-react',
+        ['@babel/preset-react', { runtime: 'automatic' }],
         '@babel/preset-typescript'
       ]
     }),

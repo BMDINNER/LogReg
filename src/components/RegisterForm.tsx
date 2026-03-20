@@ -1,6 +1,6 @@
 import React from 'react';
-import { useAuthForm } from '../hooks/useAuthForm.ts';
-import { isRequired, isValidEmail } from '../utils/validation.ts';
+import { useAuthForm } from '../hooks/useAuthForm';
+import { isRequired, isValidEmail } from '../utils/validation';
 import type { AuthFormProps, Field } from '../types';
 
 export const RegisterForm: React.FC<AuthFormProps> = ({

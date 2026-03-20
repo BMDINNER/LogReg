@@ -1,5 +1,4 @@
-import { useState, useCallback } from 'react';
-import type { ChangeEvent } from 'react';
+import { useState, useCallback, ChangeEvent } from 'react';
 import type { ValidationRules } from '../types';
 
 interface UseAuthFormProps {
@@ -59,7 +58,7 @@ export const useAuthForm = ({ initialValues, validationRules, onSubmit }: UseAut
     
     setLoading(true);
     try {
-      const result = await onSubmit?.(values);
+      const result = await onSubmit(values);
       return result;
     } catch (err: any) {
       setErrors({ form: err.message });
