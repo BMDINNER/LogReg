@@ -1,9 +1,5 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
-<<<<<<< HEAD
 import AuthAPI from '../services/api';
-=======
-import AuthAPI from '../services/api.ts';
->>>>>>> 008b41051c32968b7337140be5e50f7b5ce2247a
 import type { User, AuthResponse, LoginCredentials, RegisterData, AuthContextType, AuthProviderProps, ProjectInfo } from '../types';
 
 export const AuthContext = createContext<AuthContextType | null>(null);
