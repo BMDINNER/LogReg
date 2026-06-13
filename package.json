@@ -1,0 +1,56 @@
+{
+  "name": "@bmdinner/logreg",
+  "version": "2.1.0",
+  "type": "module",
+  "description": "Authentication package for AI Snippets Manager",
+  "main": "dist/index.js",
+  "module": "dist/index.esm.js",
+  "types": "dist/index.d.ts",
+  "files": [
+    "dist",
+    "README.md"
+  ],
+  "scripts": {
+    "build": "rollup -c",
+    "dev": "rollup -c -w",
+    "prepublishOnly": "npm run build"
+  },
+  "peerDependencies": {
+    "react": "^18.0.0",
+    "react-dom": "^18.0.0",
+    "axios": "^1.6.0"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.23.0",
+    "@babel/preset-env": "^7.23.0",
+    "@babel/preset-react": "^7.22.0",
+    "@babel/preset-typescript": "^7.23.0",
+    "@rollup/plugin-babel": "^6.0.4",
+    "@rollup/plugin-commonjs": "^25.0.5",
+    "@rollup/plugin-json": "^6.0.1",
+    "@rollup/plugin-node-resolve": "^15.2.3",
+    "@rollup/plugin-terser": "^1.0.0",
+    "@rollup/plugin-typescript": "^11.1.5",
+    "@types/react": "^18.2.0",
+    "rollup": "^4.0.0",
+    "rollup-plugin-peer-deps-external": "^2.2.4",
+    "tslib": "^2.6.0",
+    "typescript": "^5.2.0"
+  },
+  "keywords": [
+    "react",
+    "authentication",
+    "jwt",
+    "auth"
+  ],
+  "author": "Berke Dinner",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/BMDINNER/LogReg"
+  },
+  "bugs": {
+    "url": "https://github.com/BMDINNER/LogReg/issues"
+  },
+  "homepage": "https://github.com/BMDINNER/LogReg#readme"
+}

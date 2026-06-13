@@ -1,0 +1,9 @@
+node_modules/
+src/
+tests/
+examples/
+*.map
+.env*
+*.log
+.*
+!.gitignore
