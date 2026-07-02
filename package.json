@@ -1,6 +1,6 @@
 {
   "name": "@bmdinner/logreg",
-  "version": "2.1.0",
+  "version": "2.1.1",
   "type": "module",
   "description": "Authentication package for AI Snippets Manager",
   "main": "dist/index.js",
