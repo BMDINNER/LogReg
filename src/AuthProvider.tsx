@@ -137,10 +137,10 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({
     error,
     login,
     register,
-    logout,
-    refreshToken,
     forgotPassword,
     resetPassword,
+    logout,
+    refreshToken,
     isAuthenticated: !!user
   };
 

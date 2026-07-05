@@ -6,6 +6,7 @@ export { RegisterForm } from './components/RegisterForm';
 export { default as AuthAPI } from './AuthAPI';
 export { tokenManager } from './utils/tokenManager';
 export { AuthError, handleAuthError } from './utils/errorHandler';
+
 export {
   isRequired,
   isValidEmail,
