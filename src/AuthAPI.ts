@@ -90,6 +90,10 @@ export class AuthAPI {
           }
         }
 
+        if (error.response?.status === 401) {
+          tokenManager.clearAll();
+        }
+
         return Promise.reject(error);
       }
     );
@@ -108,16 +112,22 @@ export class AuthAPI {
   public async refreshAccessToken(): Promise<string> {
     const refreshToken = tokenManager.getRefreshToken();
     if (!refreshToken) {
+      tokenManager.clearAll();
       throw new Error('No refresh token available');
     }
 
-    const response = await this.api.post(this.config.endpoints.refresh, {
-      refreshToken
-    });
+    try {
+      const response = await this.api.post(this.config.endpoints.refresh, {
+        refreshToken
+      });
 
-    const { token } = response.data;
-    tokenManager.setToken(token);
-    return token;
+      const { token } = response.data;
+      tokenManager.setToken(token);
+      return token;
+    } catch (error) {
+      tokenManager.clearAll();
+      throw error;
+    }
   }
 
   async login(credentials: LoginCredentials): Promise<AuthResponse> {
@@ -192,7 +202,10 @@ export class AuthAPI {
   async verifyToken(): Promise<User | null> {
     try {
       const token = tokenManager.getToken();
-      if (!token) return null;
+      if (!token) {
+        tokenManager.clearAll();
+        return null;
+      }
 
       const response = await this.api.get(this.config.endpoints.verify);
       return response.data;
@@ -208,6 +221,10 @@ export class AuthAPI {
 
   isAuthenticated(): boolean {
     return tokenManager.hasTokens();
+  }
+
+  getRefreshToken(): string | null {
+    return tokenManager.getRefreshToken();
   }
 }
 
