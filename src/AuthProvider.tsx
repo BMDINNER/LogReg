@@ -9,8 +9,8 @@ export const AuthContext = createContext<AuthContextType | undefined>(undefined)
 export const AuthProvider: React.FC<AuthProviderProps> = ({
   children,
   authUrl,
-  apiKey,
-  projectId,
+  apiKey = '',
+  projectId = '',
   loginEndpoint = DEFAULT_ENDPOINTS.login,
   registerEndpoint = DEFAULT_ENDPOINTS.register,
   logoutEndpoint = DEFAULT_ENDPOINTS.logout,

@@ -34,9 +34,7 @@ export class AuthAPI {
       baseURL: authUrl,
       timeout: 15000,
       headers: {
-        'Content-Type': 'application/json',
-        'x-api-key': apiKey,
-        'x-project-id': projectId
+        'Content-Type': 'application/json'
       }
     });
 
@@ -132,16 +130,16 @@ export class AuthAPI {
 
   async login(credentials: LoginCredentials): Promise<AuthResponse> {
     try {
-      const response = await this.api.post(this.config.endpoints.login, {
-        ...credentials,
-        projectId: this.config.projectId
-      });
-
+      const response = await this.api.post(this.config.endpoints.login, credentials);
       const data = response.data;
       
       if (data.token) {
         tokenManager.setToken(data.token);
         tokenManager.setRefreshToken(data.refreshToken);
+      }
+      
+      if (data.user) {
+        localStorage.setItem('userData', JSON.stringify(data.user));
       }
       
       return data;
@@ -152,16 +150,16 @@ export class AuthAPI {
 
   async register(userData: RegisterData): Promise<AuthResponse> {
     try {
-      const response = await this.api.post(this.config.endpoints.register, {
-        ...userData,
-        projectId: this.config.projectId
-      });
-
+      const response = await this.api.post(this.config.endpoints.register, userData);
       const data = response.data;
       
       if (data.token) {
         tokenManager.setToken(data.token);
         tokenManager.setRefreshToken(data.refreshToken);
+      }
+      
+      if (data.user) {
+        localStorage.setItem('userData', JSON.stringify(data.user));
       }
       
       return data;
@@ -196,6 +194,7 @@ export class AuthAPI {
       console.error('Logout error:', error);
     } finally {
       tokenManager.clearAll();
+      localStorage.removeItem('userData');
     }
   }
 
@@ -207,10 +206,17 @@ export class AuthAPI {
         return null;
       }
 
-      const response = await this.api.get(this.config.endpoints.verify);
-      return response.data;
+      const response = await this.api.post(this.config.endpoints.verify);
+      const userData = response.data.user || response.data;
+      
+      if (userData) {
+        localStorage.setItem('userData', JSON.stringify(userData));
+      }
+      
+      return userData;
     } catch (error) {
       tokenManager.clearAll();
+      localStorage.removeItem('userData');
       return null;
     }
   }
