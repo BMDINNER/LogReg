@@ -7,7 +7,7 @@ A flexible authentication client for React applications that integrates with my 
 This package handles the client-side authentication flow by:
 - Capturing user credentials through Login/Register forms
 - Sending credentials to my centralized Multi-Platform Authentication Service
-- Manages JWT tokens and authentication state
+- Manages JWT tokens and automatically generate access tokens and  amanages authentication state
 - Provides a consistent auth interface across all the projects
 
 The actual authentication logic, OAuth2 integration, and user management happen separately in Multi-Platform Authentication Service backend.
