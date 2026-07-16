@@ -16,14 +16,10 @@ export class AuthAPI {
 
   constructor(
     authUrl: string,
-    apiKey: string,
-    projectId: string,
     customEndpoints?: Partial<AuthConfig['endpoints']>
   ) {
     this.config = {
       authUrl,
-      apiKey,
-      projectId,
       endpoints: {
         ...DEFAULT_ENDPOINTS,
         ...customEndpoints
@@ -199,27 +195,27 @@ export class AuthAPI {
   }
 
   async verifyToken(): Promise<User | null> {
-  try {
-    const token = tokenManager.getToken();
-    if (!token) {
+    try {
+      const token = tokenManager.getToken();
+      if (!token) {
+        tokenManager.clearAll();
+        return null;
+      }
+
+      const response = await this.api.get(this.config.endpoints.verify);
+      const userData = response.data.user || response.data;
+      
+      if (userData) {
+        localStorage.setItem('userData', JSON.stringify(userData));
+      }
+      
+      return userData;
+    } catch (error) {
       tokenManager.clearAll();
+      localStorage.removeItem('userData');
       return null;
     }
-
-    const response = await this.api.get(this.config.endpoints.verify);
-    const userData = response.data.user || response.data;
-    
-    if (userData) {
-      localStorage.setItem('userData', JSON.stringify(userData));
-    }
-    
-    return userData;
-  } catch (error) {
-    tokenManager.clearAll();
-    localStorage.removeItem('userData');
-    return null;
   }
-}
 
   getToken(): string | null {
     return tokenManager.getToken();

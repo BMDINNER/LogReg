@@ -59,8 +59,6 @@ export interface AuthContextType {
 export interface AuthProviderProps {
   children: React.ReactNode;
   authUrl: string;
-  apiKey?: string;
-  projectId?: string;
   loginEndpoint?: string;
   registerEndpoint?: string;
   logoutEndpoint?: string;
@@ -73,8 +71,6 @@ export interface AuthProviderProps {
 
 export interface AuthConfig {
   authUrl: string;
-  apiKey: string;
-  projectId: string;
   endpoints: {
     login: string;
     register: string;

@@ -9,8 +9,6 @@ export const AuthContext = createContext<AuthContextType | undefined>(undefined)
 export const AuthProvider: React.FC<AuthProviderProps> = ({
   children,
   authUrl,
-  apiKey = '',
-  projectId = '',
   loginEndpoint = DEFAULT_ENDPOINTS.login,
   registerEndpoint = DEFAULT_ENDPOINTS.register,
   logoutEndpoint = DEFAULT_ENDPOINTS.logout,
@@ -25,7 +23,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  const authAPI = new AuthAPI(authUrl, apiKey, projectId, {
+  const authAPI = new AuthAPI(authUrl, {
     login: loginEndpoint,
     register: registerEndpoint,
     logout: logoutEndpoint,
@@ -54,7 +52,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({
               const parsed = JSON.parse(storedData);
               userData = { ...verifiedUser, ...parsed };
             } catch (e) {
-              // ignore
             }
           }
           

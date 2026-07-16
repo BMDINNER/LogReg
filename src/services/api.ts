@@ -9,20 +9,15 @@ interface ExtendedAxiosRequestConfig extends InternalAxiosRequestConfig {
 class AuthAPI {
   private api: AxiosInstance;
   private refreshEndpoint: string;
-  private apiKey: string;
-  private projectId: string;
 
-  constructor(baseURL: string, apiKey: string, projectId: string, refreshEndpoint: string = '/auth/refresh') {
+  constructor(baseURL: string, refreshEndpoint: string = '/auth/refresh') {
     this.refreshEndpoint = refreshEndpoint;
-    this.apiKey = apiKey;
-    this.projectId = projectId;
 
     this.api = axios.create({
       baseURL: baseURL,
       timeout: 10000,
       headers: { 
-        'Content-Type': 'application/json',
-        'x-api-key': this.apiKey
+        'Content-Type': 'application/json'
       }
     });
 
@@ -30,9 +25,6 @@ class AuthAPI {
       const token = localStorage.getItem('token');
       if (token) {
         config.headers.Authorization = `Bearer ${token}`;
-      }
-      if (this.projectId) {
-        config.headers['x-project-id'] = this.projectId;
       }
       return config;
     });
@@ -87,10 +79,7 @@ class AuthAPI {
 
   async login(credentials: LoginCredentials, endpoint: string): Promise<AuthResponse> {
     try {
-      const { data } = await this.api.post(endpoint, {
-        ...credentials,
-        projectId: this.projectId
-      });
+      const { data } = await this.api.post(endpoint, credentials);
       return data;
     } catch (error) {
       throw this.handleError(error);
@@ -99,10 +88,7 @@ class AuthAPI {
 
   async register(userData: RegisterData, endpoint: string): Promise<AuthResponse> {
     try {
-      const { data } = await this.api.post(endpoint, {
-        ...userData,
-        projectId: this.projectId
-      });
+      const { data } = await this.api.post(endpoint, userData);
       return data;
     } catch (error) {
       throw this.handleError(error);

@@ -2,14 +2,13 @@ import React, { createContext, useState, useEffect } from 'react';
 import AuthAPI from '../AuthAPI';
 import { AuthContextType, AuthProviderProps, User, ProjectInfo, AuthResponse, LoginCredentials, RegisterData } from '../types';
 import { DEFAULT_ENDPOINTS } from '../constants/endpoints';
+import { tokenManager } from '../utils/tokenManager';
 
 export const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider: React.FC<AuthProviderProps> = ({
   children,
   authUrl,
-  apiKey,
-  projectId,
   loginEndpoint = DEFAULT_ENDPOINTS.login,
   registerEndpoint = DEFAULT_ENDPOINTS.register,
   logoutEndpoint = DEFAULT_ENDPOINTS.logout,
@@ -24,7 +23,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  const authAPI = new AuthAPI(authUrl, apiKey, projectId, {
+  const authAPI = new AuthAPI(authUrl, {
     login: loginEndpoint,
     register: registerEndpoint,
     logout: logoutEndpoint,
@@ -37,12 +36,41 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({
   useEffect(() => {
     const initAuth = async () => {
       try {
+        const token = tokenManager.getToken();
+        if (!token) {
+          setLoading(false);
+          return;
+        }
+        
         const verifiedUser = await authAPI.verifyToken();
         if (verifiedUser) {
-          setUser(verifiedUser);
+          const storedData = localStorage.getItem('userData');
+          let userData = verifiedUser;
+          
+          if (storedData) {
+            try {
+              const parsed = JSON.parse(storedData);
+              userData = { ...verifiedUser, ...parsed };
+            } catch (e) {
+            }
+          }
+          
+          if (!userData.username && userData.email) {
+            userData.username = userData.email.split('@')[0];
+          }
+          
+          setUser(userData);
+          localStorage.setItem('userData', JSON.stringify(userData));
+        } else {
+          tokenManager.clearAll();
+          localStorage.removeItem('userData');
+          setUser(null);
         }
       } catch (err) {
         console.error('Auth initialization error:', err);
+        tokenManager.clearAll();
+        localStorage.removeItem('userData');
+        setUser(null);
       } finally {
         setLoading(false);
       }
@@ -55,10 +83,20 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({
     try {
       setError(null);
       const response = await authAPI.login(credentials);
+      
+      if (response.user && !response.user.username && response.user.email) {
+        response.user.username = response.user.email.split('@')[0];
+      }
+      
       setUser(response.user);
       if (response.project) {
         setProject(response.project);
       }
+      
+      if (response.user) {
+        localStorage.setItem('userData', JSON.stringify(response.user));
+      }
+      
       return response;
     } catch (err: any) {
       const errorMessage = err.message || 'Login failed';
@@ -72,10 +110,20 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({
     try {
       setError(null);
       const response = await authAPI.register(data);
+      
+      if (response.user && !response.user.username && response.user.email) {
+        response.user.username = response.user.email.split('@')[0];
+      }
+      
       setUser(response.user);
       if (response.project) {
         setProject(response.project);
       }
+      
+      if (response.user) {
+        localStorage.setItem('userData', JSON.stringify(response.user));
+      }
+      
       return response;
     } catch (err: any) {
       const errorMessage = err.message || 'Registration failed';
@@ -115,6 +163,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({
       setUser(null);
       setProject(null);
       setError(null);
+      localStorage.removeItem('userData');
     } catch (err: any) {
       if (onError) onError(err);
       throw err;
