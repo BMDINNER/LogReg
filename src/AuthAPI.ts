@@ -135,7 +135,14 @@ export class AuthAPI {
       }
       
       if (data.user) {
-        localStorage.setItem('userData', JSON.stringify(data.user));
+        const cleanUser = {
+          email: data.user.email,
+          username: data.user.username,
+          provider: data.user.provider,
+          createdAt: data.user.createdAt,
+          updatedAt: data.user.updatedAt
+        };
+        localStorage.setItem('userData', JSON.stringify(cleanUser));
       }
       
       return data;
@@ -155,7 +162,14 @@ export class AuthAPI {
       }
       
       if (data.user) {
-        localStorage.setItem('userData', JSON.stringify(data.user));
+        const cleanUser = {
+          email: data.user.email,
+          username: data.user.username,
+          provider: data.user.provider,
+          createdAt: data.user.createdAt,
+          updatedAt: data.user.updatedAt
+        };
+        localStorage.setItem('userData', JSON.stringify(cleanUser));
       }
       
       return data;
@@ -206,7 +220,14 @@ export class AuthAPI {
       const userData = response.data.user || response.data;
       
       if (userData) {
-        localStorage.setItem('userData', JSON.stringify(userData));
+        const cleanUser = {
+          email: userData.email,
+          username: userData.username,
+          provider: userData.provider,
+          createdAt: userData.createdAt,
+          updatedAt: userData.updatedAt
+        };
+        localStorage.setItem('userData', JSON.stringify(cleanUser));
       }
       
       return userData;

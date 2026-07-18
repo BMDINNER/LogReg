@@ -1,5 +1,4 @@
 export interface User {
-  id: string;
   email: string;
   username?: string;
   provider: string;
@@ -9,7 +8,6 @@ export interface User {
 }
 
 export interface ProjectInfo {
-  id: string;
   name: string;
   role: string;
 }
