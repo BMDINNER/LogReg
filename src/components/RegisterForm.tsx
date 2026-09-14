@@ -5,7 +5,7 @@ import { AuthFormProps, Field } from '../types';
 
 export const RegisterForm: React.FC<AuthFormProps> = ({
   fields = [
-    { name: 'username', type: 'text', label: 'Username', required: true, placeholder: 'johndoe' },
+    { name: 'username', type: 'text', label: 'Username', required: true, placeholder: 'your username' },
     { name: 'email', type: 'email', label: 'Email', required: true, placeholder: 'you@example.com' },
     { name: 'password', type: 'password', label: 'Password', required: true, placeholder: 'password' },
     { name: 'confirmPassword', type: 'password', label: 'Confirm Password', required: true, placeholder: 'confirm password' }
