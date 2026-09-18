@@ -1,16 +1,9 @@
 import React from 'react';
 import { useAuthForm } from '../hooks/useAuthForm';
-import { isRequired, isValidEmail, minLength, hasUppercase, hasNumber, matches } from '../utils/validation';
-import { AuthFormProps, Field } from '../types';
+import { AuthFormProps, FieldConfig } from '../types';
 
 export const RegisterForm: React.FC<AuthFormProps> = ({
-  fields = [
-    { name: 'username', type: 'text', label: 'Username', required: true, placeholder: 'your username' },
-    { name: 'email', type: 'email', label: 'Email', required: true, placeholder: 'you@example.com' },
-    { name: 'password', type: 'password', label: 'Password', required: true, placeholder: 'password' },
-    { name: 'confirmPassword', type: 'password', label: 'Confirm Password', required: true, placeholder: 'confirm password' }
-  ],
-  validationRules = {},
+  schema,
   onSubmit,
   submitButtonText = 'Sign Up',
   renderField,
@@ -18,27 +11,21 @@ export const RegisterForm: React.FC<AuthFormProps> = ({
   onError,
   className = ''
 }) => {
-  const rules = {
-    username: [
-      { validate: isRequired, message: 'Username is required' },
-      { validate: (v: string) => v?.length >= 3, message: 'Username must be at least 3 characters' }
-    ],
-    email: [
-      { validate: isRequired, message: 'Email is required' },
-      { validate: isValidEmail, message: 'Invalid email format' }
-    ],
-    password: [
-      { validate: isRequired, message: 'Password is required' },
-      { validate: (v: string) => minLength(v, 8), message: 'Password must be at least 8 characters' },
-      { validate: hasUppercase, message: 'Password must contain at least one uppercase letter' },
-      { validate: hasNumber, message: 'Password must contain at least one number' }
-    ],
-    confirmPassword: [
-      { validate: isRequired, message: 'Please confirm your password' },
-      { validate: (v: string, all: any) => matches(v, all?.password), message: 'Passwords do not match' }
-    ],
-    ...validationRules
-  };
+  const shape = schema.shape;
+
+  const fields: FieldConfig[] = Object.keys(shape).map((key) => {
+    let type = 'text';
+    if (key.toLowerCase().includes('password')) type = 'password';
+    if (key.toLowerCase().includes('email')) type = 'email';
+
+    return {
+      name: key,
+      type,
+      label: key.charAt(0).toUpperCase() + key.slice(1),
+      required: !(shape[key] as any).isOptional(),
+      placeholder: `Enter your ${key}`
+    };
+  });
 
   const {
     values,
@@ -48,12 +35,11 @@ export const RegisterForm: React.FC<AuthFormProps> = ({
     handleBlur,
     handleSubmit
   } = useAuthForm({
+    schema,
     initialValues: fields.reduce((acc, f) => ({ ...acc, [f.name]: '' }), {}),
-    validationRules: rules,
     onSubmit: async (data) => {
       try {
-        const { confirmPassword, ...submitData } = data;
-        const result = await onSubmit?.(submitData);
+        const result = await onSubmit?.(data);
         onSuccess?.(result);
         return result;
       } catch (err: any) {
@@ -63,17 +49,23 @@ export const RegisterForm: React.FC<AuthFormProps> = ({
     }
   });
 
-  const defaultField = (field: Field) => {
-    return React.createElement('div', { key: field.name, className: 'auth-form-field' },
-      React.createElement('label', { htmlFor: field.name },
+  const defaultField = (field: FieldConfig) => {
+    return React.createElement(
+      'div',
+      { key: field.name, className: 'auth-form-field' },
+      React.createElement(
+        'label',
+        { htmlFor: field.name },
         field.label,
         field.required && React.createElement('span', { className: 'required-star' }, '*')
       ),
-      React.createElement('div', { className: 'input-wrapper' },
+      React.createElement(
+        'div',
+        { className: 'input-wrapper' },
         React.createElement('input', {
           id: field.name,
           name: field.name,
-          type: field.type || 'text',
+          type: field.type,
           value: values[field.name] || '',
           onChange: handleChange,
           onBlur: handleBlur,
@@ -81,44 +73,68 @@ export const RegisterForm: React.FC<AuthFormProps> = ({
           className: errors[field.name] ? 'error' : ''
         })
       ),
-      errors[field.name] && React.createElement('small', { className: 'error-message' }, errors[field.name])
+      errors[field.name] &&
+        React.createElement('small', { className: 'error-message' }, errors[field.name])
     );
   };
 
+  const passwordValue = values.password || '';
   const passwordChecks = [
-    { check: values.password?.length >= 8, text: 'At least 8 characters' },
-    { check: /[A-Z]/.test(values.password || ''), text: 'One uppercase letter' },
-    { check: /[0-9]/.test(values.password || ''), text: 'One number' }
+    { check: passwordValue.length >= 8, text: 'At least 8 characters' },
+    { check: /[A-Z]/.test(passwordValue), text: 'One uppercase letter' },
+    { check: /[0-9]/.test(passwordValue), text: 'One number' }
   ];
 
   const getPasswordStrength = () => {
-    const passedCount = passwordChecks.filter(c => c.check).length;
+    const passedCount = passwordChecks.filter((c) => c.check).length;
     if (passedCount === 3) return 'Strong';
     if (passedCount >= 2) return 'Medium';
     return 'Weak';
   };
 
-  return React.createElement('form', { onSubmit: handleSubmit, className: `auth-form ${className}` },
-    fields.map(field => renderField ? renderField(field, { values, errors, handleChange, handleBlur }) : defaultField(field)),
-    
-    values.password && React.createElement('div', { className: 'password-strength' },
-      React.createElement('div', { className: 'strength-label' },
-        'Password Strength: ',
-        React.createElement('span', { className: `strength-${getPasswordStrength().toLowerCase()}` }, getPasswordStrength())
-      ),
-      React.createElement('div', { className: 'password-checks' },
-        passwordChecks.map((item, index) =>
-          React.createElement('div', { key: index, className: 'check-item' },
-            React.createElement('span', { className: item.check ? 'check-pass' : 'check-fail' }, item.check ? '✓' : '○'),
-            React.createElement('span', { className: 'check-text' }, item.text)
+  return React.createElement(
+    'form',
+    { onSubmit: handleSubmit, className: `auth-form ${className}` },
+    fields.map((field) =>
+      renderField
+        ? renderField(field, { values, errors, handleChange, handleBlur })
+        : defaultField(field)
+    ),
+    values.password &&
+      React.createElement(
+        'div',
+        { className: 'password-strength' },
+        React.createElement(
+          'div',
+          { className: 'strength-label' },
+          'Password Strength: ',
+          React.createElement(
+            'span',
+            { className: `strength-${getPasswordStrength().toLowerCase()}` },
+            getPasswordStrength()
+          )
+        ),
+        React.createElement(
+          'div',
+          { className: 'password-checks' },
+          passwordChecks.map((item, index) =>
+            React.createElement(
+              'div',
+              { key: index, className: 'check-item' },
+              React.createElement(
+                'span',
+                { className: item.check ? 'check-pass' : 'check-fail' },
+                item.check ? '✓' : '○'
+              ),
+              React.createElement('span', { className: 'check-text' }, item.text)
+            )
           )
         )
-      )
-    ),
-    
+      ),
     errors.form && React.createElement('div', { className: 'form-error' }, errors.form),
-    
-    React.createElement('button', { type: 'submit', disabled: loading, className: 'auth-submit-btn' },
+    React.createElement(
+      'button',
+      { type: 'submit', disabled: loading, className: 'auth-submit-btn' },
       loading ? 'Creating account...' : submitButtonText
     )
   );

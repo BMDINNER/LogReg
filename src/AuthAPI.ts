@@ -1,5 +1,5 @@
-import axios, { AxiosInstance, InternalAxiosRequestConfig, AxiosError } from 'axios';
-import { tokenManager } from './utils/tokenManager';
+import axios from 'axios';
+import {  AxiosInstance, InternalAxiosRequestConfig, AxiosError } from 'axios';
 import { handleAuthError } from './utils/errorHandler';
 import { AuthConfig, LoginCredentials, RegisterData, AuthResponse, User } from './types';
 import { DEFAULT_ENDPOINTS } from './constants/endpoints';
@@ -12,12 +12,9 @@ export class AuthAPI {
   private api: AxiosInstance;
   private config: AuthConfig;
   private isRefreshing = false;
-  private refreshSubscribers: ((token: string) => void)[] = [];
+  private refreshSubscribers: Array<() => void> = [];
 
-  constructor(
-    authUrl: string,
-    customEndpoints?: Partial<AuthConfig['endpoints']>
-  ) {
+  constructor(authUrl: string, customEndpoints?: Partial<AuthConfig['endpoints']>) {
     this.config = {
       authUrl,
       endpoints: {
@@ -29,6 +26,7 @@ export class AuthAPI {
     this.api = axios.create({
       baseURL: authUrl,
       timeout: 15000,
+      withCredentials: true,
       headers: {
         'Content-Type': 'application/json'
       }
@@ -39,13 +37,7 @@ export class AuthAPI {
 
   private setupInterceptors(): void {
     this.api.interceptors.request.use(
-      (config: InternalAxiosRequestConfig) => {
-        const token = tokenManager.getToken();
-        if (token) {
-          config.headers.Authorization = `Bearer ${token}`;
-        }
-        return config;
-      },
+      (config: InternalAxiosRequestConfig) => config,
       (error) => Promise.reject(error)
     );
 
@@ -53,17 +45,16 @@ export class AuthAPI {
       (response) => response,
       async (error: AxiosError) => {
         const originalRequest = error.config as ExtendedAxiosRequestConfig;
-        
+
         if (!originalRequest || originalRequest.url?.includes(this.config.endpoints.refresh)) {
           return Promise.reject(error);
         }
 
         if (error.response?.status === 401 && !originalRequest._retry) {
           if (this.isRefreshing) {
-            return new Promise((resolve) => {
-              this.refreshSubscribers.push((token: string) => {
-                originalRequest.headers.Authorization = `Bearer ${token}`;
-                resolve(this.api(originalRequest));
+            return new Promise((resolve, reject) => {
+              this.refreshSubscribers.push(() => {
+                this.api(originalRequest).then(resolve).catch(reject);
               });
             });
           }
@@ -72,9 +63,8 @@ export class AuthAPI {
           this.isRefreshing = true;
 
           try {
-            const newToken = await this.refreshAccessToken();
-            this.onRefreshSuccess(newToken);
-            originalRequest.headers.Authorization = `Bearer ${newToken}`;
+            await this.refreshAccessToken();
+            this.onRefreshSuccess();
             return this.api(originalRequest);
           } catch (refreshError) {
             this.onRefreshFailure();
@@ -84,68 +74,28 @@ export class AuthAPI {
           }
         }
 
-        if (error.response?.status === 401) {
-          tokenManager.clearAll();
-        }
-
         return Promise.reject(error);
       }
     );
   }
 
-  private onRefreshSuccess(token: string): void {
-    this.refreshSubscribers.forEach(callback => callback(token));
+  private onRefreshSuccess(): void {
+    this.refreshSubscribers.forEach((callback) => callback());
     this.refreshSubscribers = [];
   }
 
   private onRefreshFailure(): void {
-    tokenManager.clearAll();
     this.refreshSubscribers = [];
   }
 
-  public async refreshAccessToken(): Promise<string> {
-    const refreshToken = tokenManager.getRefreshToken();
-    if (!refreshToken) {
-      tokenManager.clearAll();
-      throw new Error('No refresh token available');
-    }
-
-    try {
-      const response = await this.api.post(this.config.endpoints.refresh, {
-        refreshToken
-      });
-
-      const { token } = response.data;
-      tokenManager.setToken(token);
-      return token;
-    } catch (error) {
-      tokenManager.clearAll();
-      throw error;
-    }
+  public async refreshAccessToken(): Promise<void> {
+    await this.api.post(this.config.endpoints.refresh);
   }
 
   async login(credentials: LoginCredentials): Promise<AuthResponse> {
     try {
       const response = await this.api.post(this.config.endpoints.login, credentials);
-      const data = response.data;
-      
-      if (data.token) {
-        tokenManager.setToken(data.token);
-        tokenManager.setRefreshToken(data.refreshToken);
-      }
-      
-      if (data.user) {
-        const cleanUser = {
-          email: data.user.email,
-          username: data.user.username,
-          provider: data.user.provider,
-          createdAt: data.user.createdAt,
-          updatedAt: data.user.updatedAt
-        };
-        localStorage.setItem('userData', JSON.stringify(cleanUser));
-      }
-      
-      return data;
+      return response.data;
     } catch (error) {
       throw handleAuthError(error);
     }
@@ -154,25 +104,7 @@ export class AuthAPI {
   async register(userData: RegisterData): Promise<AuthResponse> {
     try {
       const response = await this.api.post(this.config.endpoints.register, userData);
-      const data = response.data;
-      
-      if (data.token) {
-        tokenManager.setToken(data.token);
-        tokenManager.setRefreshToken(data.refreshToken);
-      }
-      
-      if (data.user) {
-        const cleanUser = {
-          email: data.user.email,
-          username: data.user.username,
-          provider: data.user.provider,
-          createdAt: data.user.createdAt,
-          updatedAt: data.user.updatedAt
-        };
-        localStorage.setItem('userData', JSON.stringify(cleanUser));
-      }
-      
-      return data;
+      return response.data;
     } catch (error) {
       throw handleAuthError(error);
     }
@@ -196,58 +128,20 @@ export class AuthAPI {
 
   async logout(): Promise<void> {
     try {
-      const refreshToken = tokenManager.getRefreshToken();
-      if (refreshToken) {
-        await this.api.post(this.config.endpoints.logout, { refreshToken });
-      }
+      await this.api.post(this.config.endpoints.logout);
     } catch (error) {
       console.error('Logout error:', error);
-    } finally {
-      tokenManager.clearAll();
-      localStorage.removeItem('userData');
     }
   }
 
   async verifyToken(): Promise<User | null> {
     try {
-      const token = tokenManager.getToken();
-      if (!token) {
-        tokenManager.clearAll();
-        return null;
-      }
-
       const response = await this.api.get(this.config.endpoints.verify);
       const userData = response.data.user || response.data;
-      
-      if (userData) {
-        const cleanUser = {
-          email: userData.email,
-          username: userData.username,
-          provider: userData.provider,
-          createdAt: userData.createdAt,
-          updatedAt: userData.updatedAt
-        };
-        localStorage.setItem('userData', JSON.stringify(cleanUser));
-      }
-      
       return userData;
     } catch (error) {
-      tokenManager.clearAll();
-      localStorage.removeItem('userData');
       return null;
     }
-  }
-
-  getToken(): string | null {
-    return tokenManager.getToken();
-  }
-
-  isAuthenticated(): boolean {
-    return tokenManager.hasTokens();
-  }
-
-  getRefreshToken(): string | null {
-    return tokenManager.getRefreshToken();
   }
 }
 

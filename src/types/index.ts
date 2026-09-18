@@ -1,3 +1,6 @@
+import { z } from 'zod';
+import { ReactNode } from 'react';
+
 export interface User {
   email: string;
   username?: string;
@@ -13,10 +16,9 @@ export interface ProjectInfo {
 }
 
 export interface AuthResponse {
-  token: string;
-  refreshToken: string;
   user: User;
   project?: ProjectInfo;
+  message?: string;
 }
 
 export interface LoginCredentials {
@@ -48,14 +50,14 @@ export interface AuthContextType {
   login: (credentials: LoginCredentials) => Promise<AuthResponse>;
   register: (data: RegisterData) => Promise<AuthResponse>;
   logout: () => Promise<void>;
-  refreshToken: () => Promise<string | null>;
+  refreshToken: () => Promise<void>;
   forgotPassword: (email: string) => Promise<void>;
   resetPassword: (token: string, newPassword: string) => Promise<void>;
   isAuthenticated: boolean;
 }
 
 export interface AuthProviderProps {
-  children: React.ReactNode;
+  children: ReactNode;
   authUrl: string;
   loginEndpoint?: string;
   registerEndpoint?: string;
@@ -80,7 +82,7 @@ export interface AuthConfig {
   };
 }
 
-export interface Field {
+export interface FieldConfig {
   name: string;
   type: string;
   label: string;
@@ -88,22 +90,12 @@ export interface Field {
   placeholder?: string;
 }
 
-export interface ValidationRule {
-  validate: (value: any, allValues?: any) => boolean;
-  message: string;
-}
-
-export interface ValidationRules {
-  [key: string]: ValidationRule[];
-}
-
 export interface AuthFormProps {
-  fields?: Field[];
-  validationRules?: ValidationRules;
+  schema: z.ZodObject<any>;
   onSubmit?: (data: any) => Promise<any>;
   submitButtonText?: string;
   className?: string;
-  renderField?: (field: Field, formState: any) => React.ReactNode;
+  renderField?: (field: FieldConfig, formState: any) => ReactNode;
   onSuccess?: (result: AuthResponse) => void;
   onError?: (error: Error) => void;
 }

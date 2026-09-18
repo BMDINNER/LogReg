@@ -1,14 +1,9 @@
 import React from 'react';
 import { useAuthForm } from '../hooks/useAuthForm';
-import { isRequired, isValidEmail } from '../utils/validation';
-import { AuthFormProps, Field } from '../types';
+import { AuthFormProps, FieldConfig } from '../types';
 
 export const LoginForm: React.FC<AuthFormProps> = ({
-  fields = [
-    { name: 'email', type: 'email', label: 'Email', required: true, placeholder: 'you@example.com' },
-    { name: 'password', type: 'password', label: 'Password', required: true, placeholder: 'password' }
-  ],
-  validationRules = {},
+  schema,
   onSubmit,
   submitButtonText = 'Sign In',
   renderField,
@@ -16,17 +11,21 @@ export const LoginForm: React.FC<AuthFormProps> = ({
   onError,
   className = ''
 }) => {
-  const rules = {
-    email: [
-      { validate: isRequired, message: 'Email is required' },
-      { validate: isValidEmail, message: 'Invalid email format' }
-    ],
-    password: [
-      { validate: isRequired, message: 'Password is required' },
-      { validate: (v: string) => v?.length >= 6, message: 'Password must be at least 6 characters' }
-    ],
-    ...validationRules
-  };
+  const shape = schema.shape;
+
+  const fields: FieldConfig[] = Object.keys(shape).map((key) => {
+    let type = 'text';
+    if (key.toLowerCase().includes('password')) type = 'password';
+    if (key.toLowerCase().includes('email')) type = 'email';
+
+    return {
+      name: key,
+      type,
+      label: key.charAt(0).toUpperCase() + key.slice(1),
+      required: !(shape[key] as any).isOptional(),
+      placeholder: `Enter your ${key}`
+    };
+  });
 
   const {
     values,
@@ -36,8 +35,8 @@ export const LoginForm: React.FC<AuthFormProps> = ({
     handleBlur,
     handleSubmit
   } = useAuthForm({
+    schema,
     initialValues: fields.reduce((acc, f) => ({ ...acc, [f.name]: '' }), {}),
-    validationRules: rules,
     onSubmit: async (data) => {
       try {
         const result = await onSubmit?.(data);
@@ -50,17 +49,23 @@ export const LoginForm: React.FC<AuthFormProps> = ({
     }
   });
 
-  const defaultField = (field: Field) => {
-    return React.createElement('div', { key: field.name, className: 'auth-form-field' },
-      React.createElement('label', { htmlFor: field.name },
+  const defaultField = (field: FieldConfig) => {
+    return React.createElement(
+      'div',
+      { key: field.name, className: 'auth-form-field' },
+      React.createElement(
+        'label',
+        { htmlFor: field.name },
         field.label,
         field.required && React.createElement('span', { className: 'required-star' }, '*')
       ),
-      React.createElement('div', { className: 'input-wrapper' },
+      React.createElement(
+        'div',
+        { className: 'input-wrapper' },
         React.createElement('input', {
           id: field.name,
           name: field.name,
-          type: field.type || 'text',
+          type: field.type,
           value: values[field.name] || '',
           onChange: handleChange,
           onBlur: handleBlur,
@@ -68,14 +73,23 @@ export const LoginForm: React.FC<AuthFormProps> = ({
           className: errors[field.name] ? 'error' : ''
         })
       ),
-      errors[field.name] && React.createElement('small', { className: 'error-message' }, errors[field.name])
+      errors[field.name] &&
+        React.createElement('small', { className: 'error-message' }, errors[field.name])
     );
   };
 
-  return React.createElement('form', { onSubmit: handleSubmit, className: `auth-form ${className}` },
-    fields.map(field => renderField ? renderField(field, { values, errors, handleChange, handleBlur }) : defaultField(field)),
+  return React.createElement(
+    'form',
+    { onSubmit: handleSubmit, className: `auth-form ${className}` },
+    fields.map((field) =>
+      renderField
+        ? renderField(field, { values, errors, handleChange, handleBlur })
+        : defaultField(field)
+    ),
     errors.form && React.createElement('div', { className: 'form-error' }, errors.form),
-    React.createElement('button', { type: 'submit', disabled: loading, className: 'auth-submit-btn' },
+    React.createElement(
+      'button',
+      { type: 'submit', disabled: loading, className: 'auth-submit-btn' },
       loading ? 'Please wait...' : submitButtonText
     )
   );
