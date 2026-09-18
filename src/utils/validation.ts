@@ -1,7 +1,7 @@
 import { z } from 'zod';
 
 export const validateWithZod = (
-  schema: z.ZodSchema,
+  schema: z.ZodType,
   data: any
 ): { isValid: boolean; errors: Record<string, string> } => {
   const result = schema.safeParse(data);
