@@ -23,11 +23,11 @@ React uygulamaları için hafif bir kimlik doğrulama istemcisi.
 npm install @bmdinner/logreg zod
 ```
 
-`zod` bir peer bağımlılığıdır ve form doğrulaması için gereklidir.
+`zod` bir peer dependency ve aynı zamanda form doğrulaması için gereklidir.
 
 ---
 
-## Hızlı Başlangıç
+## Kullanım şekilleri
 
 Uygulamanızı `AuthProvider` ile sarmalayın:
 
@@ -90,17 +90,17 @@ function Profile() {
 
 Uygulamanızı sarmalar ve kimlik doğrulama durumunu yönetir.
 
-| Prop | Tip | Varsayılan | Açıklama |
-|---|---|---|---|
-| `authUrl` | `string` | — | Auth endpoint'lerinin temel URL'si. Aynı origin için `''` kullanın. |
-| `loginEndpoint` | `string` | `/auth/login` | |
-| `registerEndpoint` | `string` | `/auth/register` | |
-| `logoutEndpoint` | `string` | `/auth/logout` | |
-| `refreshEndpoint` | `string` | `/auth/refresh` | |
-| `verifyEndpoint` | `string` | `/auth/verify` | Mount sırasında aktif kullanıcıyı yüklemek için çağrılır. |
-| `forgotPasswordEndpoint` | `string` | `/auth/forgot-password` | |
-| `resetPasswordEndpoint` | `string` | `/auth/reset-password` | |
-| `onError` | `(error: Error) => void` | — | İsteğe bağlı genel hata callback'i. |
+| Prop                      | Tip                      | Varsayılan               | Açıklama                                                                                                                     |
+|---------------------------|--------------------------|--------------------------|------------------------------------------------------------------------------------------------------------------------------|
+| `authUrl`                 | `string`                 |           —              | Auth endpoint'lerinin temel URL'si. Aynı origin için `''` kullanın.                                                          |
+| `loginEndpoint`           | `string`                 | `/auth/login`            | Login Endpointi                                                                                                              |
+| `registerEndpoint`        | `string`                 | `/auth/register`         | Register Endpointi                                                                                                           |
+| `logoutEndpoint`          | `string`                 | `/auth/logout`           | Logout Endpointi                                                                                                             |
+| `refreshEndpoint`         | `string`                 | `/auth/refresh`          | Token refresh Endpointi                                                                                                      |
+| `verifyEndpoint`          | `string`                 | `/auth/verify`           | Mount sırasında aktif kullanıcıyı yüklemek için çağrılır.                                                                    |
+| `forgotPasswordEndpoint`  | `string`                 | `/auth/forgot-password`  | "Şifremi unuttum" Endpointi(Şimdilik bu canlı projelerde çalışmıyor)                                                         |
+| `resetPasswordEndpoint`   | `string`                 | `/auth/reset-password`   |  "Şifremi sıfırla" Endpointi(Bu endpointi harekete geçiren statik html sayfaları, CSP ile bloklanıyor, üzerinde çalışıyorum.)|
+| `onError`                 | `(error: Error) => void` |           —              | İsteğe bağlı genel hata callback'i.                                                                                          |
 
 ### `useAuth`
 
@@ -135,15 +135,15 @@ Her iki bileşen de bir Zod şeması alır ve alanları şemadan üretir.
 />
 ```
 
-| Prop               | Tip                           | Açıklama                                                  |
-|--------------------|-------------------------------|-----------------------------------------------------------|
-| `schema`           | `z.ZodObject<any>`            | Zorunlu. Alanları ve doğrulama kurallarını tanımlar.      |
+| Prop               | Tip                           | Açıklama                                                        |
+|--------------------|-------------------------------|-----------------------------------------------------------------|
+| `schema`           | `z.ZodObject<any>`            | Zorunlu. Alanları ve doğrulama kurallarını tanımlar.            |
 | `onSubmit`         | `(data) => Promise<any>`      | Varsayılan gönderim işleyicisini değiştirmek için isteğe bağlı. |
-| `onSuccess`        | `(result) => void`            | Başarılı gönderimden sonra çağrılır.                      |
-| `onError`          | `(error) => void`             | Hata durumunda çağrılır.                                  |
-| `renderField`      | `(field, state) => ReactNode` | Kendi input bileşeninizi kullanın.                        |
-| `submitButtonText` | `string`                      |                                                           |
-| `className`        | `string`                      |                                                           |
+| `onSuccess`        | `(result) => void`            | Başarılı gönderimden sonra çağrılır.                            |
+| `onError`          | `(error) => void`             | Hata durumunda çağrılır.                                        |
+| `renderField`      | `(field, state) => ReactNode` | Kendi input bileşeninizi kullanın.                              |
+| `submitButtonText` | `string`                      |                                                                 |
+| `className`        | `string`                      |                                                                 |
 
 ### `AuthAPI`
 
@@ -234,15 +234,15 @@ Artık farklı projeler farklı şemalar geçebiliyor. Şemada hangi alanlar var
 
 `logreg` backend'in aşağıdaki endpoint'leri sunmasını bekler. Tüm cevaplar JSON'dur.
 
-| Metot  | Yol                     | Gövde                           | Cevap                                   |
-|--------|-------------------------|---------------------------------|-----------------------------------------|
-| `POST` | `/auth/login`           | `{ email, password }`           | `{ user }` ve `Set-Cookie`              |
-| `POST` | `/auth/register`        | `{ username, email, password }` | `{ user }` ve `Set-Cookie`              |
+| Metot  | Yol                     | Gövde                           | Cevap                                       |
+|--------|-------------------------|---------------------------------|---------------------------------------------|
+| `POST` | `/auth/login`           | `{ email, password }`           | `{ user }` ve `Set-Cookie`                  |
+| `POST` | `/auth/register`        | `{ username, email, password }` | `{ user }` ve `Set-Cookie`                  |
 | `POST` | `/auth/logout`          | —                               | `{ success: true }` ve cookie'leri temizler |
-| `POST` | `/auth/refresh`         | —                               | `{ success: true }` ve `Set-Cookie`     |
-| `GET`  | `/auth/verify`          | —                               | `{ user }`                              |
-| `POST` | `/auth/forgot-password` | `{ email }`                     | `{ success: true }`                     |
-| `POST` | `/auth/reset-password`  | `{ token, newPassword }`        | `{ success: true }`                     |
+| `POST` | `/auth/refresh`         | —                               | `{ success: true }` ve `Set-Cookie`         |
+| `GET`  | `/auth/verify`          | —                               | `{ user }`                                  |
+| `POST` | `/auth/forgot-password` | `{ email }`                     | `{ success: true }`                         |
+| `POST` | `/auth/reset-password`  | `{ token, newPassword }`        | `{ success: true }`                         |
 
 Backend'in sorumlulukları:
 
