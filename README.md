@@ -1,6 +1,8 @@
 # @bmdinner/logreg
 
-**English** | [Türkçe](#türkçe)
+<a id="english"></a>
+
+**English** | [Türkçe](#turkish)
 
 A lightweight authentication client for React applications.
 
@@ -259,6 +261,8 @@ The frontend never sends `apiKey` or `projectId`.
 MIT
 
 ---
+
+<a id="turkish"></a>
 
 # @bmdinner/logreg
 
