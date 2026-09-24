@@ -6,7 +6,7 @@
 
 A lightweight authentication client for React applications.
 
-`logreg` provides a small set of tools for login and registration flows: an `AuthProvider` context, form components, and an HTTP client that handles session refresh automatically. It sits between a frontend and a backend that owns the actual authentication logic — the package handles the frontend concerns (form state, validation, session refresh) and leaves credential ownership to the backend.
+`logreg` provides a small set of tools for login and registration flows: an `AuthProvider` context, form components, and an HTTP client that handles session refresh automatically. It sits between a frontend and a backend that owns the actual authentication logic, the package handles the frontend concerns (form state, validation, session refresh) and leaves credential ownership to the backend.
 
 ---
 
@@ -92,17 +92,17 @@ function Profile() {
 
 Wraps your application and manages authentication state.
 
-| Prop | Type | Default | Description |
-|---|---|---|---|
-| `authUrl` | `string` | — | Base URL of the auth endpoints. Use `''` for same-origin. |
-| `loginEndpoint` | `string` | `/auth/login` | |
-| `registerEndpoint` | `string` | `/auth/register` | |
-| `logoutEndpoint` | `string` | `/auth/logout` | |
-| `refreshEndpoint` | `string` | `/auth/refresh` | |
-| `verifyEndpoint` | `string` | `/auth/verify` | Called on mount to hydrate the current user. |
-| `forgotPasswordEndpoint` | `string` | `/auth/forgot-password` | |
-| `resetPasswordEndpoint` | `string` | `/auth/reset-password` | |
-| `onError` | `(error: Error) => void` | — | Optional global error callback. |
+| Prop                      | Type                     | Default                 | Description                                                             |
+|-------------------------  |--------------------------|-------------------------|-------------------------------------------------------------------------|
+| `authUrl`                 | `string`                 |          —              | Base URL of the auth endpoints. Use `''` for same-origin.               |
+| `loginEndpoint`           | `string`                 | `/auth/login`           | Login Endpoint                                                          |
+| `registerEndpoint`        | `string`                 | `/auth/register`        | Register Endpoint                                                       |
+| `logoutEndpoint`          | `string`                 | `/auth/logout`          | Logout Endpoint                                                         |
+| `refreshEndpoint`         | `string`                 | `/auth/refresh`         | Token Refresh Endpoint                                                  |
+| `verifyEndpoint`          | `string`                 | `/auth/verify`          | Called on mount to hydrate the current user.                            |
+| `forgotPasswordEndpoint`  | `string`                 | `/auth/forgot-password` | Forgot Password Endpoint (Doesnt work on live yet, works in local only) |
+| `resetPasswordEndpoint`   | `string`                 | `/auth/reset-password`  | Reset Password Endpoint  (Doesnt work on live yet, works in local only) |
+| `onError`                 | `(error: Error) => void` |           —             | Optional global error callback.                                         |
 
 ### `useAuth`
 
@@ -192,13 +192,13 @@ Notes on problems I ran into while building and integrating this package, and wh
 
 **What I did:** Saved the authenticated user to `localStorage`. On login, the user object goes into `localStorage`. On app mount, the provider reads it back so the UI can render as signed-in immediately, while the session is still being verified against the backend.
 
-I only save the user object, not the session token. The token lives in an HTTP-only cookie that JavaScript can't read. If the cookie is gone or expired, the backend rejects the verification and the user gets logged out — so a stale `localStorage` entry can never grant access on its own. It's a UI hint, not an authentication mechanism.
+I only save the user object, not the session token. The token lives in an HTTP-only cookie that JavaScript can't read. If the cookie is gone or expired, the backend rejects the verification and the user gets logged out, so a stale `localStorage` entry can never grant access on its own. It's a UI hint, not an authentication mechanism.
 
 ---
 
 ### `apiKey` and `projectId` were leaking from the frontend
 
-**The struggle:** I had `apiKey` and `projectId` being sent from the frontend through the library to the backend, and from there to the auth service. That meant the values were visible in the browser — in the network tab, in DevTools, anywhere someone cared to look. Anyone inspecting the traffic could see them.
+**The struggle:** I had `apiKey` and `projectId` being sent from the frontend through the library to the backend, and from there to the auth service. That meant the values were visible in the browser. In the network tab, in DevTools, anywhere someone cared to look. Anyone inspecting the traffic could see them.
 
 **What I did:** Changed the data flow. Instead of the frontend constructing requests that include the API key and project ID, the frontend now sends only the user's credentials to my backend, and the backend attaches those values itself before forwarding to the auth service.
 
@@ -214,7 +214,7 @@ The new flow is:
 frontend → backend → auth service
 ```
 
-`logreg` handles form fields and session refresh. It no longer knows or cares about `apiKey` or `projectId` — those props were removed entirely. Anything that needs to be attached to a request on behalf of the app now happens on the backend, where the browser can't see it.
+`logreg` handles form fields and session refresh. It no longer knows or cares about `apiKey` or `projectId`, those props were removed entirely. Anything that needs to be attached to a request on behalf of the app now happens on the backend, where the browser can't see it.
 
 **What I learned from this:** If the browser has to know a value, the browser can leak that value. Moving credentials to the backend and keeping the frontend as a thin client is the safer default.
 
@@ -224,11 +224,11 @@ frontend → backend → auth service
 
 **The struggle:** The login and register forms had hardcoded field definitions baked in. Every project that used the library needed the same fields. If a project wanted a username field but another didn't, or wanted different password rules, there was no clean way to support that without rewriting the forms per project.
 
-The old approach also split field definitions and validation rules into two separate objects — a `fields` array for the inputs, and a `validationRules` object for the checks. Any time I added or changed a field, I had to update both and hope they stayed in sync.
+The old approach also split field definitions and validation rules into two separate objects; a `fields` array for the inputs, and a `validationRules` object for the checks. Any time I added or changed a field, I had to update both and hope they stayed in sync.
 
-**What I did:** Moved to Zod schemas. `LoginForm` and `RegisterForm` now take a single `schema` prop. The components read the schema's shape and generate the fields from it — name, label, required flag, everything. Validation is done by calling `schema.safeParse(values)`.
+**What I did:** Moved to Zod schemas. `LoginForm` and `RegisterForm` now take a single `schema` prop. The components read the schema's shape and generate the fields from it; name, label, required flag, everything. Validation is done by calling `schema.safeParse(values)`.
 
-Now different projects can pass different schemas. Whatever fields are in the schema are the fields that render, with whatever rules the schema defines. The two problems I had before — fields being fixed and rules drifting away from fields — both went away, because the schema is the only place either of them is defined.
+Now different projects can pass different schemas. Whatever fields are in the schema are the fields that render, with whatever rules the schema defines. The two problems I had before; fields being fixed and rules drifting away from fields. Both went away, because the schema is the only place either of them is defined.
 
 ---
 
@@ -270,7 +270,7 @@ MIT
 
 React uygulamaları için hafif bir kimlik doğrulama istemcisi.
 
-`logreg`, giriş ve kayıt akışları için küçük bir araç seti sunar: bir `AuthProvider` context'i, form bileşenleri ve oturum yenilemeyi otomatik yöneten bir HTTP istemcisi. Frontend ile kimlik doğrulama mantığını barındıran backend arasında konumlanır — paket frontend tarafındaki işleri (form durumu, doğrulama, oturum yenileme) üstlenir ve kimlik bilgilerinin sahipliğini backend'e bırakır.
+`logreg`, giriş ve kayıt akışları için küçük bir araç seti sunar: bir `AuthProvider` context'i, form bileşenleri ve oturum yenilemeyi otomatik yöneten bir HTTP istemcisi. Frontend ile kimlik doğrulama mantığını barındıran backend arasında konumlanır, paket frontend tarafındaki işleri (form durumu, doğrulama, oturum yenileme) üstlenir ve kimlik bilgilerinin sahipliğini backend'e bırakır.
 
 ---
 
@@ -454,9 +454,9 @@ Bu paketi geliştirirken ve entegre ederken karşılaştığım sorunlar ve bunl
 
 **Sorun:** Sayfa her yenilendiğinde veya kullanıcı sekmeyi kapatıp geri döndüğünde tekrar giriş yapmaları gerekiyordu. Sayfa yüklemeleri arasında oturumu taşıyan bir şey yoktu, bu yüzden her yenileme sıfırdan başlıyordu.
 
-**Çözümüm:** Kimliği doğrulanmış kullanıcıyı `localStorage`'a kaydettim. Girişte kullanıcı nesnesi `localStorage`'a yazılır. Uygulama mount olduğunda provider bunu geri okur, böylece arayüz hemen giriş yapılmış olarak görünür — bu sırada oturum backend'e karşı doğrulanmaya devam eder.
+**Çözümüm:** Kimliği doğrulanmış kullanıcıyı `localStorage`'a kaydettim. Girişte kullanıcı nesnesi `localStorage`'a yazılır. Uygulama mount olduğunda provider bunu geri okur, böylece arayüz hemen giriş yapılmış olarak görünür, bu sırada oturum backend'e karşı doğrulanmaya devam eder.
 
-Yalnızca kullanıcı nesnesini kaydediyorum, oturum token'ını değil. Token, JavaScript'in okuyamadığı bir HTTP-only cookie'de tutulur. Cookie yoksa veya süresi dolmuşsa backend doğrulamayı reddeder ve kullanıcı çıkış yapmış olur — yani eski bir `localStorage` kaydı tek başına erişim sağlayamaz. Bu bir arayüz ipucudur, kimlik doğrulama mekanizması değildir.
+Yalnızca kullanıcı nesnesini kaydediyorum, oturum token'ını değil. Token, JavaScript'in okuyamadığı bir HTTP-only cookie'de tutulur. Cookie yoksa veya süresi dolmuşsa backend doğrulamayı reddeder ve kullanıcı çıkış yapmış olur, yani eski bir `localStorage` kaydı tek başına erişim sağlayamaz. Bu bir arayüz ipucudur, kimlik doğrulama mekanizması değildir.
 
 ---
 
@@ -488,11 +488,11 @@ frontend → backend → auth service
 
 **Sorun:** Giriş ve kayıt formlarının alan tanımları sabit kodluydu. Kütüphaneyi kullanan her projenin aynı alanlara ihtiyacı vardı. Bir proje kullanıcı adı alanı isteyip diğeri istemiyorsa veya farklı şifre kuralları istiyorsa, formları proje başına yeniden yazmadan bunu desteklemenin temiz bir yolu yoktu.
 
-Eski yaklaşım ayrıca alan tanımlarını ve doğrulama kurallarını iki ayrı nesneye bölüyordu — input'lar için bir `fields` dizisi, kontroller için bir `validationRules` nesnesi. Bir alan eklediğimde veya değiştirdiğimde her ikisini de güncellemem ve senkron kalmalarını ummam gerekiyordu.
+Eski yaklaşım ayrıca alan tanımlarını ve doğrulama kurallarını iki ayrı nesneye bölüyordu. Input'lar için bir `fields` dizisi, kontroller için bir `validationRules` nesnesi. Bir alan eklediğimde veya değiştirdiğimde her ikisini de güncellemem ve senkron kalmalarını ummam gerekiyordu.
 
-**Çözümüm:** Zod şemalarına geçtim. `LoginForm` ve `RegisterForm` artık tek bir `schema` prop'u alıyor. Bileşenler şemanın şeklini okuyup alanları ondan üretiyor — isim, etiket, zorunluluk, hepsi. Doğrulama `schema.safeParse(values)` çağrılarak yapılıyor.
+**Çözümüm:** Zod şemalarına geçtim. `LoginForm` ve `RegisterForm` artık tek bir `schema` prop'u alıyor. Bileşenler şemanın şeklini okuyup alanları ondan üretiyor; isim, etiket, zorunluluk, hepsi. Doğrulama `schema.safeParse(values)` çağrılarak yapılıyor.
 
-Artık farklı projeler farklı şemalar geçebiliyor. Şemada hangi alanlar varsa, o alanlar o kurallarla render ediliyor. Önceki iki sorunum — alanların sabit olması ve kuralların alanlardan kopması — ikisi de ortadan kalktı, çünkü şema her ikisinin de tanımlandığı tek yer.
+Artık farklı projeler farklı şemalar geçebiliyor. Şemada hangi alanlar varsa, o alanlar o kurallarla render ediliyor. Önceki iki sorunum; alanların sabit olması ve kuralların alanlardan kopması; ikisi de ortadan kalktı, çünkü şema her ikisinin de tanımlandığı tek yer.
 
 ---
 
