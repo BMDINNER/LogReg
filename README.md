@@ -8,20 +8,13 @@ A lightweight authentication client for React applications.
 
 ---
 
-## Screenshots
+## Flowchart of the project
 
 <p align="center">
   <img src="docs/images/login-form.png" alt="Login form" width="600" />
   <br />
-  <em>LoginForm rendered from a Zod schema.</em>
+  <em>Data flow of Logreg, how it is implemented to other projects of mine.</em>
 </p>
-
-<p align="center">
-  <img src="docs/images/register-form.png" alt="Register form" width="600" />
-  <br />
-  <em>RegisterForm with username, email, and password fields.</em>
-</p>
-
 ---
 
 ## Installation
