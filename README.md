@@ -13,7 +13,7 @@ A lightweight authentication client for React applications.
 ## Flowchart of the project
 
 <p align="center">
-  <img src="logreg-eng.png" alt="Flowchart" width="600" />
+  <img src="logreg-eng.png" alt="Flowchart" width="1200" />
   <br />
   <em>Data flow of Logreg, how it is implemented to other projects of mine.</em>
 </p>
@@ -277,7 +277,7 @@ React uygulamaları için hafif bir kimlik doğrulama istemcisi.
 ## Projenin Akış Diyagramı
 
 <p align="center">
-  <img src="logreg-tr.png" alt="Akış Diyagramı" width="600" />
+  <img src="logreg-tr.png" alt="Akış Diyagramı" width="1200" />
   <br />
   <em>Logreg'in veri akışı ve diğer projelerime nasıl entegre edildiği.</em>
 </p>
