@@ -7,7 +7,7 @@ import { DEFAULT_ENDPOINTS } from './constants/endpoints';
 interface ExtendedAxiosRequestConfig extends InternalAxiosRequestConfig {
   _retry?: boolean;
 }
-
+//testing comment
 export class AuthAPI {
   private api: AxiosInstance;
   private config: AuthConfig;
