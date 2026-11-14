@@ -1,4 +1,4 @@
-# @bmdinner/logreg
+# @berkemd/logreg
 
 <a id="english"></a>
 
@@ -22,7 +22,7 @@ A lightweight authentication client for React applications.
 ## Installation
 
 ```bash
-npm install @bmdinner/logreg zod
+npm install @berkemd/logreg zod
 ```
 
 `zod` is a peer dependency and is required for form validation.
@@ -34,7 +34,7 @@ npm install @bmdinner/logreg zod
 Wrap your application with `AuthProvider`:
 
 ```tsx
-import { AuthProvider } from '@bmdinner/logreg';
+import { AuthProvider } from '@berkemd/logreg';
 
 function App() {
   return (
@@ -48,7 +48,7 @@ function App() {
 Use `LoginForm` with a Zod schema:
 
 ```tsx
-import { LoginForm } from '@bmdinner/logreg';
+import { LoginForm } from '@berkemd/logreg';
 import { z } from 'zod';
 
 const loginSchema = z.object({
@@ -70,7 +70,7 @@ function LoginPage() {
 Access the current user with `useAuth`:
 
 ```tsx
-import { useAuth } from '@bmdinner/logreg';
+import { useAuth } from '@berkemd/logreg';
 
 function Profile() {
   const { user, isAuthenticated, logout } = useAuth();
@@ -152,7 +152,7 @@ Both components accept a Zod schema and render fields from it.
 The underlying HTTP client. Can be used directly for non-React integrations.
 
 ```ts
-import { AuthAPI } from '@bmdinner/logreg';
+import { AuthAPI } from '@berkemd/logreg';
 
 const api = new AuthAPI('https://api.example.com', {
   login: '/auth/login',
@@ -264,7 +264,7 @@ MIT
 
 <a id="turkish"></a>
 
-# @bmdinner/logreg
+# @berkemd/logreg
 
 [English](#english) | **Türkçe**
 
@@ -286,7 +286,7 @@ React uygulamaları için hafif bir kimlik doğrulama istemcisi.
 ## Kurulum
 
 ```bash
-npm install @bmdinner/logreg zod
+npm install @berkemd/logreg zod
 ```
 
 `zod` bir peer dependency ve aynı zamanda form doğrulaması için gereklidir.
@@ -298,7 +298,7 @@ npm install @bmdinner/logreg zod
 Uygulamanızı `AuthProvider` ile sarmalayın:
 
 ```tsx
-import { AuthProvider } from '@bmdinner/logreg';
+import { AuthProvider } from '@berkemd/logreg';
 
 function App() {
   return (
@@ -312,7 +312,7 @@ function App() {
 `LoginForm` bileşenini bir Zod şemasıyla kullanın:
 
 ```tsx
-import { LoginForm } from '@bmdinner/logreg';
+import { LoginForm } from '@berkemd/logreg';
 import { z } from 'zod';
 
 const loginSchema = z.object({
@@ -334,7 +334,7 @@ function LoginPage() {
 Aktif kullanıcıya `useAuth` ile erişin:
 
 ```tsx
-import { useAuth } from '@bmdinner/logreg';
+import { useAuth } from '@berkemd/logreg';
 
 function Profile() {
   const { user, isAuthenticated, logout } = useAuth();
@@ -416,7 +416,7 @@ Her iki bileşen de bir Zod şeması alır ve alanları şemadan üretir.
 Alt katmandaki HTTP istemcisi. React dışı entegrasyonlar için doğrudan kullanılabilir.
 
 ```ts
-import { AuthAPI } from '@bmdinner/logreg';
+import { AuthAPI } from '@berkemd/logreg';
 
 const api = new AuthAPI('https://api.example.com', {
   login: '/auth/login',
